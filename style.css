@@ -24,6 +24,7 @@ body {
                 color var(--theme-speed),
                 box-shadow var(--theme-speed),
                 backdrop-filter var(--theme-speed);
+    padding: 5px;
 }
 
 /* --- NAVIGATION & THEME SELECTOR --- */
