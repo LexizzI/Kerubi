@@ -46,7 +46,7 @@ function changeTheme(key) {
     r.style.setProperty('--contrast', t.contrast);
     r.style.setProperty('--contrast2', t.contrast2);
     localStorage.setItem('kerubi_theme_key', key);
-    document.getElementById('theme-select').value = key;
+    if(document.getElementById('theme-select')) document.getElementById('theme-select').value = key;
 }
 
 function toggleConfig() {
@@ -61,11 +61,36 @@ function toggleConfig() {
         editingId = null; 
         if(delBtn) delBtn.style.display = 'none'; 
         if(saveBtn) saveBtn.innerText = "Register in Kerubi";
+        
         document.getElementById('task-title').value = '';
         document.getElementById('task-date').value = '';
+        document.getElementById('task-date-end').value = '';
         document.getElementById('task-time').value = '';
+        document.getElementById('task-desc').value = '';
         document.getElementById('steps-list').innerHTML = '';
+        document.getElementById('task-type').value = 'reminder';
+        updateTaskFields('reminder');
         document.querySelector('.config-header h2').innerText = "Schedule Task";
+    }
+}
+
+function updateTaskFields(type) {
+    const stepBuilder = document.getElementById('step-builder');
+    const reminderExtra = document.getElementById('reminder-extra'); 
+    const intervalExtra = document.getElementById('interval-extra'); 
+
+    stepBuilder.classList.add('hidden');
+    reminderExtra.classList.add('hidden');
+    intervalExtra.classList.add('hidden');
+
+    if (type === 'series') {
+        stepBuilder.classList.remove('hidden');
+        if(document.getElementById('steps-list').children.length === 0) addStepField();
+    } else if (type === 'reminder') {
+        reminderExtra.classList.remove('hidden');
+    } else if (type === 'interval') {
+        reminderExtra.classList.remove('hidden');
+        intervalExtra.classList.remove('hidden');
     }
 }
 
@@ -74,49 +99,76 @@ function editTask(id) {
     if (!task) return;
     
     editingId = id; 
+    toggleConfig();
     
-    const el = document.getElementById('config-panel');
-    el.style.display = 'flex';
+    document.getElementById('save-btn').innerText = "Save Changes";
+    document.getElementById('delete-btn').style.display = 'block';
     
-    const saveBtn = document.getElementById('save-btn');
-    const delBtn = document.getElementById('delete-btn');
-    if(saveBtn) saveBtn.innerText = "Save Changes";
-    if(delBtn) delBtn.style.display = 'block';
-    
-    document.querySelector('.config-header h2').innerText = "Edit Task";
     document.getElementById('task-title').value = task.title;
     document.getElementById('task-date').value = task.date;
     document.getElementById('task-time').value = task.time === "--:--" ? "" : task.time;
     document.getElementById('task-type').value = task.type;
     
-    toggleStepBuilder(task.type);
+    updateTaskFields(task.type);
+
     if (task.type === 'series') {
         document.getElementById('steps-list').innerHTML = '';
-        task.steps.forEach(s => addStepField(s.title, s.desc));
+        (task.steps || []).forEach(s => addStepField(s.title, s.desc));
+    } else {
+        document.getElementById('task-desc').value = task.desc || '';
+        if (task.type === 'interval') {
+            document.getElementById('task-date-end').value = task.dateEnd || '';
+        }
     }
+}
+
+function saveTask() {
+    const title = document.getElementById('task-title').value;
+    const date = document.getElementById('task-date').value;
+    const time = document.getElementById('task-time').value;
+    const type = document.getElementById('task-type').value;
+
+    if (!title || !date) return alert("Title and date are mandatory");
+
+    let taskData = {
+        id: editingId || Date.now(),
+        title, date, type,
+        time: time || "--:--"
+    };
+
+    if (type === 'series') {
+        const steps = [];
+        document.querySelectorAll('.step-entry').forEach(e => {
+            const val = e.querySelector('.step-t').value;
+            if(val) steps.push({ title: val, desc: e.querySelector('.step-d').value });
+        });
+        taskData.steps = steps;
+    } else {
+        taskData.desc = document.getElementById('task-desc').value;
+        if (type === 'interval') {
+            taskData.dateEnd = document.getElementById('task-date-end').value;
+        }
+    }
+
+    if (editingId) {
+        const idx = tasks.findIndex(t => t.id === editingId);
+        tasks[idx] = taskData;
+    } else {
+        tasks.push(taskData);
+    }
+
+    saveToLocalStorage();
+    render();
+    toggleConfig();
 }
 
 function deleteTask() {
-    if (editingId === null) {
-        alert("Select a task first.");
-        return;
-    }
-    
-    if (confirm("Delete this mission permanently?")) {
+    if (editingId && confirm("Delete this mission permanently?")) {
         tasks = tasks.filter(t => t.id !== editingId);
         saveToLocalStorage();
         render();
-        const el = document.getElementById('config-panel');
-        el.style.display = 'none';
-        editingId = null;
+        toggleConfig();
     }
-}
-
-function toggleStepBuilder(type) {
-    const b = document.getElementById('step-builder');
-    if(!b) return;
-    type === 'series' ? b.classList.remove('hidden') : b.classList.add('hidden');
-    if(type === 'series' && document.getElementById('steps-list').children.length === 0) addStepField();
 }
 
 function addStepField(title = '', desc = '') {
@@ -131,34 +183,6 @@ function addStepField(title = '', desc = '') {
     container.appendChild(div);
 }
 
-function saveTask() {
-    const title = document.getElementById('task-title').value;
-    const date = document.getElementById('task-date').value;
-    const time = document.getElementById('task-time').value;
-    const type = document.getElementById('task-type').value;
-
-    if (!title || !date) return alert("Title and date are mandatory");
-
-    const steps = [];
-    if (type === 'series') {
-        document.querySelectorAll('.step-entry').forEach(e => {
-            const val = e.querySelector('.step-t').value;
-            if(val) steps.push({ title: val, desc: e.querySelector('.step-d').value });
-        });
-    }
-
-    if (editingId) {
-        const index = tasks.findIndex(t => t.id === editingId);
-        tasks[index] = { ...tasks[index], title, date, time: time || "--:--", type, steps };
-    } else {
-        tasks.push({ id: Date.now(), title, date, time: time || "--:--", type, steps });
-    }
-
-    saveToLocalStorage();
-    render();
-    toggleConfig();
-}
-
 function render() {
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
@@ -166,36 +190,48 @@ function render() {
 
     const tList = document.getElementById('today-tasks');
     const uList = document.getElementById('upcoming-tasks');
+    const dateDisp = document.getElementById('current-date-display');
+    
+    if(dateDisp) dateDisp.innerText = now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
     if(!tList || !uList) return;
 
     tList.innerHTML = ''; uList.innerHTML = '';
     
-    const sortedTasks = [...tasks].sort((a, b) => a.time.localeCompare(b.time));
+    const sortedTasks = [...tasks].sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
 
     sortedTasks.forEach(t => {
-        const isToday = t.date === todayStr;
-        const isPastDate = t.date < todayStr;
-        const isPastTime = isToday && t.time !== "--:--" && t.time < currentTimeStr;
+        // Lógica de rango: ¿Hoy está dentro del intervalo?
+        const isWithinRange = t.type === 'interval' && todayStr >= t.date && (t.dateEnd ? todayStr <= t.dateEnd : true);
+        const isToday = t.date === todayStr || isWithinRange;
+        
+        // --- LÓGICA DE EXPIRACIÓN CORREGIDA ---
+        // Expira solo si pasa la fecha FINAL (o la fecha única si no es intervalo)
+        const expirationDate = (t.type === 'interval' && t.dateEnd) ? t.dateEnd : t.date;
+        const isPastDate = expirationDate < todayStr;
+        
+        // Solo verificamos la hora si hoy es el día final o el único día
+        const isLastDay = expirationDate === todayStr;
+        const isPastTime = isLastDay && t.time !== "--:--" && t.time < currentTimeStr;
+        
         const isExpired = isPastDate || isPastTime;
 
-        const stepsHtml = t.steps.map(step => `
-            <div style="margin-top: 8px; padding-left: 10px; border-left: 2px solid var(--primary); opacity: 0.9;">
-                <div style="font-weight: 600; font-size: 0.85em;">${step.title}</div>
-                ${step.desc ? `<div style="font-size: 0.75em; opacity: 0.6; margin-left: 12px;">${step.desc}</div>` : ''}
-            </div>
-        `).join('');
+        let extraContent = '';
+        if (t.type === 'series') {
+            extraContent = (t.steps || []).map(s => `<div class="step-render-item"><b>• ${s.title}</b><br>${s.desc}</div>`).join('');
+        } else if (t.type === 'reminder') {
+            extraContent = `<p class="render-task-desc">${t.desc || ''}</p>`;
+        } else if (t.type === 'interval') {
+            extraContent = `<div class="interval-badge">${t.date} ➔ ${t.dateEnd || '...'}</div><p class="render-task-desc" style="margin-top:8px">${t.desc || ''}</p>`;
+        }
 
         const html = `
-            <div class="task-card ${isToday ? 'today' : ''} ${isExpired ? 'expired' : ''}" onclick="editTask(${t.id})">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div>
-                        <h3 style="margin: 0; color: var(--primary);">${t.title}</h3>
-                        ${isExpired ? '<span class="expired-tag">Expired</span>' : ''}
-                    </div>
-                    <span style="opacity: 0.5; font-size: 0.8em;">${t.time}</span>
+            <div class="task-card ${isExpired ? 'expired' : ''}" onclick="editTask(${t.id})">
+                <div class="task-card-header">
+                    <div><h3 class="task-title-text">${t.title}</h3>${isExpired ? '<span class="expired-tag">Expired</span>' : ''}</div>
+                    <span class="task-time-text">${t.time}</span>
                 </div>
-                <p style="opacity: 0.4; font-size: 0.75em; margin: 5px 0 10px 0;">${t.date}</p>
-                <div class="task-description-area">${stepsHtml}</div>
+                ${(!isToday || t.type === 'interval') ? `<p class="task-date-text">Start: ${t.date}</p>` : ''}
+                <div class="task-body-content">${extraContent}</div>
             </div>`;
             
         isToday ? tList.innerHTML += html : uList.innerHTML += html;
@@ -205,21 +241,13 @@ function render() {
 window.onload = () => {
     const sel = document.getElementById('theme-select');
     if(sel) {
-        sel.innerHTML = ''; // Limpiamos por si acaso
         for (let k in themes) {
             const opt = document.createElement('option');
-            opt.value = k;
-            opt.innerText = themes[k].name;
+            opt.value = k; opt.innerText = themes[k].name;
             sel.appendChild(opt);
         }
     }
-    
-    const savedTheme = localStorage.getItem('kerubi_theme_key') || 'kerubi';
-    changeTheme(savedTheme);
-
-    // ... resto del código (dateDisp, render, etc)
-
-    
+    changeTheme(localStorage.getItem('kerubi_theme_key') || 'kerubi');
     setInterval(render, 60000);
     render();
 };

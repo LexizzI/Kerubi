@@ -2,8 +2,8 @@
     --theme-speed: 0.6s ease-in-out;
 }
 
-* { 
-    box-sizing: border-box; 
+* {
+    box-sizing: border-box;
 }
 
 body {
@@ -16,18 +16,7 @@ body {
     transition: background-color var(--theme-speed), color var(--theme-speed);
 }
 
-.app-container, .side-view, .main-view, .config-window, 
-.task-card, .k-input, .k-select, .overlay {
-    transition: background var(--theme-speed), 
-                background-color var(--theme-speed), 
-                border-color var(--theme-speed), 
-                color var(--theme-speed),
-                box-shadow var(--theme-speed),
-                backdrop-filter var(--theme-speed);
-    padding: 5px;
-}
-
-/* --- NAVIGATION & THEME SELECTOR --- */
+/* --- NAVIGATION --- */
 .top-nav {
     height: 60px;
     padding: 0 40px;
@@ -35,183 +24,175 @@ body {
     justify-content: space-between;
     align-items: center;
     background: var(--contrast2);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo {
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: 2px;
 }
 
 #theme-select {
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
     color: var(--text);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 6px 12px;
+    padding: 6px;
     border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.85rem;
     outline: none;
-    transition: all 0.3s ease;
 }
 
-#theme-select:hover {
-    border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.1);
+/* --- LAYOUT & SCROLLS --- */
+.app-container {
+    display: flex;
+    height: calc(100vh - 60px);
+    overflow: hidden; /* Evita scroll global */
 }
 
-#theme-select option {
-    background: var(--contrast2);
-    color: var(--text);
+.main-view {
+    flex: 3;
+    padding: 40px;
+    overflow-y: auto; /* Scroll independiente */
+    height: 100%;
 }
 
-.logo { 
-    font-weight: 800; 
-    color: var(--primary); 
-    letter-spacing: 2px; 
-}
-
-/* --- LAYOUT --- */
-.app-container { 
-    display: flex; 
-    height: calc(100vh - 60px); 
-}
-
-.main-view { 
-    flex: 3; 
-    padding: 40px; 
-    overflow-y: auto; 
-}
-
-.side-view { 
-    flex: 1; 
-    background: var(--contrast); 
-    padding: 20px; 
-    display: flex; 
+.side-view {
+    flex: 1;
+    background: var(--contrast);
+    padding: 20px;
+    position: relative;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
     flex-direction: column;
-    border-left: 1px solid rgba(0,0,0,0.2);
-    position: relative; 
+    height: 100%;
 }
 
-/* --- CONFIG WINDOW & CLOSE BUTTON --- */
+/* Contenedor interno para que el scroll no afecte al título de Upcoming */
+.upcoming-list {
+    flex: 1;
+    overflow-y: auto; /* Scroll independiente lateral */
+    padding-right: 5px;
+}
+
+/* --- CUSTOM SCROLLBAR --- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+/* --- MODALS & OVERLAYS --- */
 .overlay {
-    position: fixed; 
-    inset: 0; 
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(10px); 
-    display: none; 
-    justify-content: center; 
-    align-items: center; 
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 1000;
 }
 
 .config-window {
-    background: var(--contrast2); 
-    width: 90%; 
+    background: var(--contrast2);
+    width: 90%;
     max-width: 500px;
-    border-radius: 20px; 
-    padding: 30px; 
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    border-radius: 20px;
+    padding: 30px;
     position: relative;
-}
-
-.config-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .close-x {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: none;
+    border: none;
     color: var(--text);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    font-size: 1.5rem;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-}
-
-.close-x:hover {
-    background: #ff5555;
-    color: white;
-    transform: rotate(90deg);
-    border-color: transparent;
 }
 
 /* --- FORM ELEMENTS --- */
-.input-row { 
-    display: flex;
-    flex-direction: column; 
-    gap: 15px; 
-    margin-bottom: 10px;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.field label {
-    font-size: 0.8rem;
-    opacity: 0.6;
-    margin-left: 5px;
-}
-
-.k-input, .k-select {
-    background: rgba(0,0,0,0.2); 
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text); 
-    padding: 12px; 
-    border-radius: 8px; 
-    width: 100%; 
+.k-input,
+.k-select {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 8px;
+    width: 100%;
+    margin-top: 5px;
     outline: none;
 }
 
-.k-input:focus { 
-    border-color: var(--primary); 
+.main-input {
+    font-size: 1.5rem;
+    border-left: 4px solid var(--primary);
 }
 
-.main-input { 
-    font-size: 1.5rem; 
-    border-left: 5px solid var(--primary); 
+/* --- TASK CARDS --- */
+.task-card {
+    background: var(--contrast2);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.task-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.task-title-text {
+    margin: 0;
+    color: var(--primary);
+}
+
+.interval-badge {
+    display: inline-block;
+    background: var(--primary);
+    color: var(--background);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
 }
 
 /* --- BUTTONS --- */
-.config-footer {
-    display: flex;
-    flex-direction: column; 
-    gap: 10px;
-}
-
-.btn-primary { 
-    background: var(--primary); 
-    color: var(--background); 
-    border: none; 
-    padding: 15px; 
-    border-radius: 12px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    width: 100%; 
+.btn-primary {
+    background: var(--primary);
+    color: var(--background);
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
 }
 
 .btn-danger {
     background: rgba(255, 85, 85, 0.1);
     color: #ff5555;
     border: 1px solid rgba(255, 85, 85, 0.3);
-    padding: 12px;
+    padding: 10px;
     border-radius: 12px;
+    width: 100%;
     cursor: pointer;
+    margin-top: 10px;
     font-weight: bold;
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
 
 .btn-danger:hover {
@@ -219,58 +200,36 @@ body {
     color: white;
 }
 
-.btn-secondary { 
-    background: transparent; 
-    border: 1px solid var(--primary); 
-    color: var(--primary); 
-    padding: 8px; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    margin-top: 5px;
-}
-
 .fab {
-    position: absolute; 
-    bottom: 30px; 
-    right: 30px; 
-    width: 60px; 
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
     height: 60px;
-    border-radius: 50%; 
-    background: var(--primary); 
-    border: none; 
-    font-size: 30px;
-    cursor: pointer; 
-    color: var(--background); 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-/* --- CARDS & STATES --- */
-.task-card {
+    border-radius: 50%;
+    background: var(--primary);
+    border: none;
+    font-size: 2rem;
+    color: var(--background);
     cursor: pointer;
-    transition: transform 0.2s ease, background var(--theme-speed);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-.task-card:hover {
-    transform: translateY(-3px);
-    background: rgba(255, 255, 255, 0.05);
+/* --- UTILS --- */
+.hidden {
+    display: none !important;
 }
 
-.hidden { 
-    display: none !important; 
-}
-
-.task-card.expired {
-    border-left: 4px solid #666 !important;
-    opacity: 0.6;
-    filter: grayscale(0.8);
+.expired {
+    opacity: 0.5;
+    filter: grayscale(0.5);
 }
 
 .expired-tag {
     background: rgba(255, 0, 0, 0.2);
     color: #ff5555;
-    font-size: 0.65rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: bold;
-    text-transform: uppercase;
+    font-size: 0.6rem;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin-left: 10px;
 }

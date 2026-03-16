@@ -26,16 +26,18 @@
             <div class="config-body">
                 <section class="basic-info">
                     <input type="text" id="task-title" class="k-input main-input" placeholder="Mission name...">
+                    
                     <div class="input-row">
                         <div class="field">
                             <label>Type</label>
-                            <select id="task-type" class="k-select" onchange="toggleStepBuilder(this.value)">
+                            <select id="task-type" class="k-select" onchange="updateTaskFields(this.value)">
                                 <option value="reminder">Reminder</option>
                                 <option value="series">Step Series</option>
+                                <option value="interval">Time Interval</option>
                             </select>
                         </div>
                         <div class="field">
-                            <label>Date</label>
+                            <label>Start Date</label>
                             <input type="date" id="task-date" class="k-input">
                         </div>
                         <div class="field">
@@ -43,6 +45,17 @@
                             <input type="time" id="task-time" class="k-input">
                         </div>
                     </div>
+
+                    <div id="reminder-extra" class="field">
+                        <label>Description</label>
+                        <textarea id="task-desc" class="k-input" placeholder="Additional details..." style="resize: none; height: 60px;"></textarea>
+                    </div>
+
+                    <div id="interval-extra" class="field hidden">
+                        <label>End Date</label>
+                        <input type="date" id="task-date-end" class="k-input">
+                        <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 5px;">Active during this range.</p>
+                    </div>                    
                 </section>
 
                 <section id="step-builder" class="step-builder hidden">
@@ -73,9 +86,9 @@
                 <h2>Upcoming</h2>
             </div>
             <div id="upcoming-tasks" class="upcoming-list"></div>
+    
             <button class="fab" onclick="toggleConfig()">+</button>
-        </aside>
-    </main>
+        </aside>    </main>
 
     <script src="script.js"></script>
 </body>
