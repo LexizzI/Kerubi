@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerubi - Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="logo">KERUBI</div>
+        <div class="theme-wrapper">
+            <label for="theme-select">Theme:</label>
+            <select id="theme-select" onchange="changeTheme(this.value)"></select>
+        </div>
+    </nav>
+
+    <div id="config-panel" class="overlay" style="display: none;">
+        <div class="config-window">
+            <header class="config-header">
+                <h2>Schedule Task</h2>
+                <button onclick="toggleConfig()" class="close-x">&times;</button>
+            </header>
+            
+            <div class="config-body">
+                <section class="basic-info">
+                    <input type="text" id="task-title" class="k-input main-input" placeholder="Mission name...">
+                    <div class="input-row">
+                        <div class="field">
+                            <label>Type</label>
+                            <select id="task-type" class="k-select" onchange="toggleStepBuilder(this.value)">
+                                <option value="reminder">Reminder</option>
+                                <option value="series">Step Series</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Date</label>
+                            <input type="date" id="task-date" class="k-input">
+                        </div>
+                        <div class="field">
+                            <label>Time</label>
+                            <input type="time" id="task-time" class="k-input">
+                        </div>
+                    </div>
+                </section>
+
+                <section id="step-builder" class="step-builder hidden">
+                    <h3>Series Steps</h3>
+                    <div id="steps-list"></div>
+                    <button class="btn-secondary" onclick="addStepField()">+ Add Step</button>
+                </section>
+            </div>
+
+            <footer class="config-footer">
+                <button id="save-btn" class="btn-primary" onclick="saveTask()">Register in Kerubi</button>
+                <button id="delete-btn" class="btn-danger" style="display: none;" onclick="deleteTask()">Delete Task</button>
+            </footer>       
+        </div> 
+    </div> 
+    
+    <main class="app-container">
+        <section class="main-view">
+            <div class="section-header">
+                <h1>Today's Focus</h1>
+                <span id="current-date-display"></span>
+            </div>
+            <div id="today-tasks" class="task-grid"></div>
+        </section>
+
+        <aside class="side-view">
+            <div class="section-header">
+                <h2>Upcoming</h2>
+            </div>
+            <div id="upcoming-tasks" class="upcoming-list"></div>
+            <button class="fab" onclick="toggleConfig()">+</button>
+        </aside>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
