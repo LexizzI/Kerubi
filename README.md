@@ -28,3 +28,5 @@ This project is currently in its **initial development phase**. Current goals in
 * HTML5
 * CSS3 (Custom Properties & Flexbox)
 * Vanilla JavaScript (ES6+)
+
+Made with ❤️ by **Lexizz**
